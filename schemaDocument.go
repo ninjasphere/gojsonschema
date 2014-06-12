@@ -35,14 +35,18 @@ import (
 	"github.com/xeipuuv/gojsonreference"
 )
 
-func NewJsonSchemaDocument(document interface{}) (*JsonSchemaDocument, error) {
+func NewJsonSchemaDocument(document interface{}, pool ...*schemaPool) (*JsonSchemaDocument, error) {
 
 	internalLog("New schema document :")
 
 	var err error
 
 	d := JsonSchemaDocument{}
-	d.pool = newSchemaPool()
+	if len(pool) == 1 {
+		d.pool = pool[0]
+	} else {
+		d.pool = NewSchemaPool()
+	}
 	d.referencePool = newSchemaReferencePool()
 
 	switch document.(type) {

@@ -43,7 +43,7 @@ type schemaPool struct {
 	standaloneDocument  interface{}
 }
 
-func newSchemaPool() *schemaPool {
+func NewSchemaPool() *schemaPool {
 
 	p := &schemaPool{}
 	p.schemaPoolDocuments = make(map[string]*schemaPoolDocument)
