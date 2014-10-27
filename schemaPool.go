@@ -73,7 +73,7 @@ func (p *schemaPool) GetDocument(reference gojsonreference.JsonReference) (*sche
 		return nil, errors.New(fmt.Sprintf("Reference must be canonical %s", reference))
 	}
 
-	refToUrl := reference
+	refToUrl, _ := gojsonreference.NewJsonReference(reference.String())
 	refToUrl.GetUrl().Fragment = ""
 
 	var spd *schemaPoolDocument
