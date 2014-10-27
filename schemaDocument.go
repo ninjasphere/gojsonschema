@@ -62,7 +62,7 @@ func NewJsonSchemaDocument(document interface{}, pool ...*schemaPool) (*JsonSche
 			return nil, err
 		}
 
-		if !d.documentReference.HasUrlPathOnly {
+		if d.documentReference.GetUrl().Fragment != "" {
 			spd.Document, _, err = d.documentReference.GetPointer().Get(spd.Document)
 		}
 		if err != nil {

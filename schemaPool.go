@@ -41,6 +41,8 @@ type schemaPoolDocument struct {
 type schemaPool struct {
 	schemaPoolDocuments map[string]*schemaPoolDocument
 	standaloneDocument  interface{}
+	FilePrefix          *string
+	FileSuffix          *string
 }
 
 func NewSchemaPool() *schemaPool {
@@ -98,6 +100,15 @@ func (p *schemaPool) GetDocument(reference gojsonreference.JsonReference) (*sche
 
 		// Load from file
 		filename := strings.Replace(refToUrl.String(), "file://", "", -1)
+
+		if p.FilePrefix != nil {
+			filename = *p.FilePrefix + filename
+		}
+
+		if p.FileSuffix != nil {
+			filename = filename + *p.FileSuffix
+		}
+
 		document, err = GetFileJson(filename)
 		if err != nil {
 			return nil, err
