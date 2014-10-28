@@ -29,6 +29,7 @@ package gojsonschema
 import (
 	"errors"
 	"fmt"
+	"net/url"
 	"reflect"
 	"regexp"
 
@@ -161,7 +162,12 @@ func (d *JsonSchemaDocument) parseSchema(documentNode interface{}, currentSchema
 	}
 	if k, ok := m[KEY_REF].(string); ok {
 
-		if sch, ok := d.referencePool.GetSchema(currentSchema.ref.String() + k); ok {
+		resolvedReference, err := resolveReference(currentSchema.ref, k)
+		if err != nil {
+			return err
+		}
+
+		if sch, ok := d.referencePool.GetSchema(resolvedReference); ok {
 
 			currentSchema.refSchema = sch
 
@@ -712,7 +718,10 @@ func (d *JsonSchemaDocument) parseReference(documentNode interface{}, currentSch
 	newSchemaDocument := refdDocumentNode.(map[string]interface{})
 
 	newSchema := &jsonSchema{property: KEY_REF, parent: currentSchema, ref: currentSchema.ref}
-	d.referencePool.AddSchema(currentSchema.ref.String()+reference, newSchema)
+
+	resolvedReference, err := resolveReference(currentSchema.ref, reference)
+
+	d.referencePool.AddSchema(resolvedReference, newSchema)
 
 	err = d.parseSchema(newSchemaDocument, newSchema)
 	if err != nil {
@@ -723,6 +732,16 @@ func (d *JsonSchemaDocument) parseReference(documentNode interface{}, currentSch
 
 	return nil
 
+}
+
+func resolveReference(root *gojsonreference.JsonReference, reference string) (string, error) {
+	refUrl, err := url.Parse(reference)
+	if err != nil {
+		return "", err
+	}
+	resolvedURL := root.GetUrl().ResolveReference(refUrl)
+
+	return resolvedURL.String(), nil
 }
 
 func (d *JsonSchemaDocument) parseProperties(documentNode interface{}, currentSchema *jsonSchema) error {
